@@ -49,6 +49,9 @@ async def cmd_add(message: types.Message):
     pass
 
 
+@dp.message(Command("stat"))
+async def cmd_stat(message: types.Message):
+    pass
 
 
 async def main():
