@@ -1,0 +1,51 @@
+name: Deploy Telegram Bot
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Update repo and build
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd frontend
+            git pull origin main
+            docker-compose down
+            docker-compose up -d --build
+
+      - name: Check container is running
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            if ! docker ps | grep -q minify_link_bot; then
+              echo "Container not running"
+              exit 1
+            fi
+            echo "Container is running successfully"
+
+      - name: Check container is running
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            # Wait for the container to start properly
+            sleep 15
+            # Check if container is running
+            if ! docker ps | grep -q minify_link_bot; then
+              echo "Container not running!"
+              exit 1
+            fi
+            # Verify bot can connect to Telegram API
+            docker exec minify_link_bot python3 -c "import requests; response = requests.get('https://api.telegram.org/bot${TG_API_KEY}/getMe'); exit(0) if response.status_code == 200 else exit(1)"
