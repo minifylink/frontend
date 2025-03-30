@@ -44,6 +44,13 @@ async def cmd_help(message: types.Message):
     await message.answer(msg, parse_mode="HTML")
 
 
+@dp.message(Command("add"))
+async def cmd_add(message: types.Message):
+    pass
+
+
+
+
 async def main():
     await dp.start_polling(bot)
 
