@@ -1,0 +1,8 @@
+version: '3.8'
+services:
+  tg_bot:
+    build: .
+    command: ["python3", "main.py"]
+    environment:
+      TG_API_KEY: ${TG_API_KEY}
+    restart: unless-stopped
