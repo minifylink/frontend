@@ -8,7 +8,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Update repo and build
+      - name: Update repository
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.DEPLOY_HOST }}
@@ -18,6 +18,29 @@ jobs:
             cd frontend
             git pull origin main
             python3 -m pip install -r requirements.txt
+            docker-compose down
+            docker-compose up -d --build
+
+      - name: Install dependencies
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            cd frontend
+            python3 -m pip install -r requirements.txt
+            docker-compose down
+            docker-compose up -d --build
+
+      - name: Update docker container
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            cd frontend
             docker-compose down
             docker-compose up -d --build
 
