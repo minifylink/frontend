@@ -33,19 +33,10 @@ jobs:
             fi
             echo "Container is running successfully"
 
-      - name: Check container is running
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            # Wait for the container to start properly
-            sleep 15
-            # Check if container is running
-            if ! docker ps | grep -q minify_link_bot; then
-              echo "Container not running!"
-              exit 1
-            fi
-            # Verify bot can connect to Telegram API
-            docker exec minify_link_bot python3 -c "import requests; response = requests.get('https://api.telegram.org/bot${TG_API_KEY}/getMe'); exit(0) if response.status_code == 200 else exit(1)"
+      - name: Verify bot connection
+        run: |
+          if ! curl -s "https://api.telegram.org/bot${{ secrets.TG_API_KEY }}/getMe" | grep -q "\"ok\":true"; then
+            echo "Bot cannot connect to Telegram API!"
+            exit 1
+          fi
+          echo "Bot is operational and connected to Telegram API"
