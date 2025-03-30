@@ -28,6 +28,22 @@ async def cmd_start(message: types.Message):
     await message.answer(msg, parse_mode="HTML")
 
 
+@dp.message(Command("help"))
+async def cmd_help(message: types.Message):
+    msg = """
+<b>🛠 Помощь по боту 🛠</b>
+
+Здесь вы найдете все доступные команды:
+/start - Перезапустить бота
+/help - Доступные команды
+/add - Создать сокращенную ссылку
+/stat - Получить статистику по ссылке
+
+<code>Жду ваших команд!</code>
+"""
+    await message.answer(msg, parse_mode="HTML")
+
+
 async def main():
     await dp.start_polling(bot)
 
