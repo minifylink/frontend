@@ -1,8 +1,18 @@
-version: '3.8'
+version: '3.9'
 services:
   tg_bot:
-    build: .
+    image: python:3.11-slim
+    container_name: minify_link_bot
     command: ["python3", "main.py"]
     environment:
-      TG_API_KEY: ${TG_API_KEY}
-    restart: unless-stopped
+      - TG_API_KEY=${TG_API_KEY}
+    volumes:
+      - ./:/app
+      - ./.env:/app/.env:ro
+    working_dir: /app
+    restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "3"
