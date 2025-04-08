@@ -3,6 +3,7 @@ import aiohttp
 import logging
 import matplotlib.pyplot as plt
 from io import BytesIO
+from aiogram.types import InputFile 
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters.command import Command
 from env_data import TG_API_KEY, ADD_LINK, STAT_LINK
@@ -76,7 +77,7 @@ async def cmd_add(message: types.Message):
 @dp.message(Command("stat"))
 async def cmd_stat(message: types.Message):
     if not message.text or len(message.text.split()) < 2:
-        await message.answer("ℹ️ Используйте команду так:\n<code>/stat short_id</code>")
+        await message.answer("ℹ️ Используйте команду так:\n<code>/stat short_id</code>", parse_mode="HTML")
         return
     
     short_id = message.text.split(maxsplit=1)[1].strip()
@@ -92,7 +93,6 @@ async def cmd_stat(message: types.Message):
                     return
                 
                 stats = await response.json()
-                
                 clicks = stats.get("clicks", 0)
                 devices = stats.get("devices", {})
                 countries = stats.get("countries", {})
@@ -106,14 +106,17 @@ async def cmd_stat(message: types.Message):
                         autopct='%1.1f%%'
                     )
                     plt.tight_layout()
-                    
+
                     buf = BytesIO()
-                    plt.savefig(buf, format='png')
+                    plt.savefig(buf, format='png', dpi=80)
                     buf.seek(0)
                     plt.close()
-                    
+
+                    graph = InputFile(buf, filename="stats.png")
+
+                    # Отправляем фото
                     await message.answer_photo(
-                        photo=buf,
+                        photo=graph,
                         caption=f"📊 Статистика для <b>{short_id}</b>\n"
                                f"👆 Всего переходов: <b>{clicks}</b>\n"
                                f"📱 Устройства: {', '.join(devices.keys())}",
@@ -123,13 +126,12 @@ async def cmd_stat(message: types.Message):
                     await message.answer(
                         f"📊 Статистика для <b>{short_id}</b>\n"
                         f"👆 Всего переходов: <b>{clicks}</b>\n"
-                        f"📊 Данные по устройствам и странам отсутствуют.",
+                        f"📊 Данные по устройствам отсутствуют.",
                         parse_mode="HTML"
                     )
-    
+
     except Exception as e:
         await message.answer(f"⚠️ Ошибка: {str(e)}")
-
 
 async def main():
     await dp.start_polling(bot)
