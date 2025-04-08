@@ -1,6 +1,8 @@
 import asyncio
 import aiohttp
 import logging
+import matplotlib.pyplot as plt
+from io import BytesIO
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters.command import Command
 from env_data import TG_API_KEY, ADD_LINK, STAT_LINK
@@ -73,7 +75,60 @@ async def cmd_add(message: types.Message):
 
 @dp.message(Command("stat"))
 async def cmd_stat(message: types.Message):
-    pass
+    if not message.text or len(message.text.split()) < 2:
+        await message.answer("ℹ️ Используйте команду так:\n<code>/stat short_id</code>")
+        return
+    
+    short_id = message.text.split(maxsplit=1)[1].strip()
+    
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(
+                f'https://82.202.140.205/api/v1/stats/{short_id}',
+                ssl=False
+            ) as response:
+                if response.status != 200:
+                    await message.answer("❌ Ошибка при запросе статистики")
+                    return
+                
+                stats = await response.json()
+                
+                clicks = stats.get("clicks", 0)
+                devices = stats.get("devices", {})
+                countries = stats.get("countries", {})
+
+                if devices:
+                    plt.figure(figsize=(6, 4))
+                    plt.title("Устройства")
+                    plt.pie(
+                        [float(p.replace('%', '')) for p in devices.values()],
+                        labels=devices.keys(),
+                        autopct='%1.1f%%'
+                    )
+                    plt.tight_layout()
+                    
+                    buf = BytesIO()
+                    plt.savefig(buf, format='png')
+                    buf.seek(0)
+                    plt.close()
+                    
+                    await message.answer_photo(
+                        photo=buf,
+                        caption=f"📊 Статистика для <b>{short_id}</b>\n"
+                               f"👆 Всего переходов: <b>{clicks}</b>\n"
+                               f"📱 Устройства: {', '.join(devices.keys())}",
+                        parse_mode="HTML"
+                    )
+                else:
+                    await message.answer(
+                        f"📊 Статистика для <b>{short_id}</b>\n"
+                        f"👆 Всего переходов: <b>{clicks}</b>\n"
+                        f"📊 Данные по устройствам и странам отсутствуют.",
+                        parse_mode="HTML"
+                    )
+    
+    except Exception as e:
+        await message.answer(f"⚠️ Ошибка: {str(e)}")
 
 
 async def main():
