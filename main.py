@@ -77,18 +77,16 @@ async def cmd_add(message: types.Message):
 @dp.message(Command("stat"))
 async def cmd_stat(message: types.Message):
     if not message.text or len(message.text.split()) < 2:
-        await message.answer("ℹ️ Используйте команду так:\n<code>/stat short_id</code>")
+        await message.answer("ℹ️ Используйте команду так:\n<code>/stat short_id</code>", parse_mode="HTML")
         return
     
     short_id = message.text.split(maxsplit=1)[1].strip()
     
     try:
-        timeout = aiohttp.ClientTimeout(total=30)
-        connector = aiohttp.TCPConnector(ssl=False)
-        
-        async with aiohttp.ClientSession(timeout=timeout, connector=connector) as session:
+        async with aiohttp.ClientSession() as session:
             async with session.get(
-                f'https://82.202.140.205/api/v1/stats/{short_id}'
+                f'https://82.202.140.205/api/v1/stats/{short_id}',
+                ssl=False
             ) as response:
                 if response.status != 200:
                     await message.answer("❌ Ошибка при запросе статистики")
@@ -97,38 +95,25 @@ async def cmd_stat(message: types.Message):
                 stats = await response.json()
                 clicks = stats.get("clicks", 0)
                 devices = stats.get("devices", {})
+                countries = stats.get("countries", {})
 
+                report = [
+                    f"📊 Статистика для <b>{short_id}</b>",
+                    f"👆 Всего переходов: <b>{clicks}</b>"
+                ]
+                
                 if devices:
-                    plt.figure(figsize=(6, 4))
-                    plt.title("Устройства")
-                    plt.pie(
-                        [float(p.replace('%', '')) for p in devices.values()],
-                        labels=devices.keys(),
-                        autopct='%1.1f%%'
-                    )
-                    plt.tight_layout()
+                    devices_str = "\n".join([f"• {device}: {percent}" for device, percent in devices.items()])
+                    report.append(f"\n📱 Устройства:\n{devices_str}")
+                
+                if countries:
+                    countries_str = "\n".join([f"• {country}: {count}" for country, count in countries.items()])
+                    report.append(f"\n🌍 Страны:\n{countries_str}")
 
-                    buf = BytesIO()
-                    plt.savefig(buf, format='png', dpi=60, quality=70, optimize=True)
-                    buf.seek(0)
-                    plt.close()
-
-                    try:
-                        await message.answer_photo(
-                            BufferedInputFile(buf.getvalue(), "stats.png"),
-                            caption=f"📊 Статистика для {short_id}\n👆 Переходов: {clicks}",
-                            parse_mode="HTML"
-                        )
-                    except Exception as e:
-                        await message.answer(f"❌ Ошибка отправки графика: {str(e)}")
-                    finally:
-                        buf.close()
-                else:
-                    await message.answer(
-                        f"📊 Статистика для {short_id}\n👆 Переходов: {clicks}\n"
-                        "📊 Данные по устройствам отсутствуют.",
-                        parse_mode="HTML"
-                    )
+                await message.answer(
+                    "\n".join(report),
+                    parse_mode="HTML"
+                )
 
     except Exception as e:
         await message.answer(f"⚠️ Ошибка: {str(e)}")
