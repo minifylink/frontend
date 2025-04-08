@@ -77,16 +77,18 @@ async def cmd_add(message: types.Message):
 @dp.message(Command("stat"))
 async def cmd_stat(message: types.Message):
     if not message.text or len(message.text.split()) < 2:
-        await message.answer("ℹ️ Используйте команду так:\n<code>/stat short_id</code>", parse_mode="HTML")
+        await message.answer("ℹ️ Используйте команду так:\n<code>/stat short_id</code>")
         return
     
     short_id = message.text.split(maxsplit=1)[1].strip()
     
     try:
-        async with aiohttp.ClientSession() as session:
+        timeout = aiohttp.ClientTimeout(total=30)
+        connector = aiohttp.TCPConnector(ssl=False)
+        
+        async with aiohttp.ClientSession(timeout=timeout, connector=connector) as session:
             async with session.get(
-                f'https://82.202.140.205/api/v1/stats/{short_id}',
-                ssl=False
+                f'https://82.202.140.205/api/v1/stats/{short_id}'
             ) as response:
                 if response.status != 200:
                     await message.answer("❌ Ошибка при запросе статистики")
@@ -95,7 +97,6 @@ async def cmd_stat(message: types.Message):
                 stats = await response.json()
                 clicks = stats.get("clicks", 0)
                 devices = stats.get("devices", {})
-                countries = stats.get("countries", {})
 
                 if devices:
                     plt.figure(figsize=(6, 4))
@@ -108,24 +109,24 @@ async def cmd_stat(message: types.Message):
                     plt.tight_layout()
 
                     buf = BytesIO()
-                    plt.savefig(buf, format='png', dpi=80)
+                    plt.savefig(buf, format='png', dpi=60, quality=70, optimize=True)
                     buf.seek(0)
                     plt.close()
 
-                    graph = BufferedInputFile(buf, filename="stats.png")
-
-                    await message.answer_photo(
-                        photo=graph,
-                        caption=f"📊 Статистика для <b>{short_id}</b>\n"
-                               f"👆 Всего переходов: <b>{clicks}</b>\n"
-                               f"📱 Устройства: {', '.join(devices.keys())}",
-                        parse_mode="HTML"
-                    )
+                    try:
+                        await message.answer_photo(
+                            BufferedInputFile(buf.getvalue(), "stats.png"),
+                            caption=f"📊 Статистика для {short_id}\n👆 Переходов: {clicks}",
+                            parse_mode="HTML"
+                        )
+                    except Exception as e:
+                        await message.answer(f"❌ Ошибка отправки графика: {str(e)}")
+                    finally:
+                        buf.close()
                 else:
                     await message.answer(
-                        f"📊 Статистика для <b>{short_id}</b>\n"
-                        f"👆 Всего переходов: <b>{clicks}</b>\n"
-                        f"📊 Данные по устройствам отсутствуют.",
+                        f"📊 Статистика для {short_id}\n👆 Переходов: {clicks}\n"
+                        "📊 Данные по устройствам отсутствуют.",
                         parse_mode="HTML"
                     )
 
