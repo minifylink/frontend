@@ -3,7 +3,7 @@ import aiohttp
 import logging
 import matplotlib.pyplot as plt
 from io import BytesIO
-from aiogram.types import InputFile 
+from aiogram.types import BufferedInputFile 
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters.command import Command
 from env_data import TG_API_KEY, ADD_LINK, STAT_LINK
@@ -112,7 +112,7 @@ async def cmd_stat(message: types.Message):
                     buf.seek(0)
                     plt.close()
 
-                    graph = InputFile(buf, filename="stats.png")
+                    graph = BufferedInputFile(buf, filename="stats.png")
 
                     # Отправляем фото
                     await message.answer_photo(
