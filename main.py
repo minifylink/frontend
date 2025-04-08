@@ -114,7 +114,6 @@ async def cmd_stat(message: types.Message):
 
                     graph = BufferedInputFile(buf, filename="stats.png")
 
-                    # Отправляем фото
                     await message.answer_photo(
                         photo=graph,
                         caption=f"📊 Статистика для <b>{short_id}</b>\n"
