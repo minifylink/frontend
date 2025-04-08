@@ -28,7 +28,8 @@ async def cmd_add(message: types.Message):
     if len(parts) < 3:
         await message.answer(
             "Используйте команду в формате:\n"
-            "<code>/add https://example.com short-name</code>"
+            "<code>/add https://example.com short-name</code>",
+            parse_mode="HTML"
         )
         return
     
