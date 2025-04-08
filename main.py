@@ -2,7 +2,8 @@ import asyncio
 import logging
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters.command import Command
-from tg_api_key import TG_API_KEY
+from env_data import TG_API_KEY, ADD_LINK, STAT_LINK
+from msg_src import START_MSG, HELP_MSG
 
 
 logging.basicConfig(level=logging.INFO)
@@ -12,36 +13,12 @@ dp = Dispatcher()
 
 @dp.message(Command("start"))
 async def cmd_start(message: types.Message):
-    msg = """
-<b>🌟 MinifyLink 🌟</b>
-
-Я - умный бот, созданный чтобы помогать вам.
-
-📌 Вот что я умею:
-- Сокращать ссылки, а также генерировать QR коды к ним
-- Предоставлять статистку по сокращенным ссылкам
-
-Нажмите /help чтобы увидеть все возможности!
-
-<code>Жду ваших команд!</code>
-"""
-    await message.answer(msg, parse_mode="HTML")
+    await message.answer(START_MSG, parse_mode="HTML")
 
 
 @dp.message(Command("help"))
 async def cmd_help(message: types.Message):
-    msg = """
-<b>🛠 Помощь по боту 🛠</b>
-
-Здесь вы найдете все доступные команды:
-/start - Перезапустить бота
-/help - Доступные команды
-/add - Создать сокращенную ссылку
-/stat - Получить статистику по ссылке
-
-<code>Жду ваших команд!</code>
-"""
-    await message.answer(msg, parse_mode="HTML")
+    await message.answer(HELP_MSG, parse_mode="HTML")
 
 
 @dp.message(Command("add"))
