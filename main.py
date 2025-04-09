@@ -103,11 +103,11 @@ async def cmd_stat(message: types.Message):
                 ]
                 
                 if devices:
-                    devices_str = "\n".join([f"• {device}: {percent}" for device, percent in devices])
+                    devices_str = "\n".join([f"• {device}: {percent}" for device, percent in devices.items()])
                     report.append(f"\n📱 Устройства:\n{devices_str}")
                 
                 if countries:
-                    countries_str = "\n".join([f"• {country}: {count}" for country, count in countries])
+                    countries_str = "\n".join([f"• {country}: {count}" for country, count in countries.items()])
                     report.append(f"\n🌍 Страны:\n{countries_str}")
 
                 await message.answer(
