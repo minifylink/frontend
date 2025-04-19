@@ -52,12 +52,12 @@ async def cmd_add(message: types.Message):
                 ssl=False
             ) as response:
                 if response.status != 200:
-                    await message.answer("❌ Ошибка при сокращении ссылки")
+                    await message.answer("❌ Ошибка API: что-то не так на стороне сервера :(")
                     return
                 
                 result = await response.json()
                 if result.get("status") != "OK":
-                    await message.answer(f"❌ Ошибка API: {result.get('message', 'Unknown error')}")
+                    await message.answer(f"❌ Ошибка API: такая ссылка уже существует!')")
                     return
                 
                 short_url = f"https://шайтанкод.рф/{result['short_id']}"
@@ -66,7 +66,7 @@ async def cmd_add(message: types.Message):
             
             await message.answer_photo(
                 photo=qr_code_url,
-                caption=f"✅ Сокращённая ссылка:\n<code>{short_url}</code>",
+                caption=f"✅ Сокращённая ссылка:\n<a href=\"{short_url}\">{short_url}</a>",
                 parse_mode="HTML"
             )
     
