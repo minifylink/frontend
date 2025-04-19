@@ -99,21 +99,20 @@ async def cmd_stat(message: types.Message):
 
                 report = [
                     f"📊 Статистика для <b>{short_id}</b>",
-                    f"👆 Всего переходов: <b>{clicks}</b>",
-                    f"{type(devices)}",
-                    f"{type(countries)}"
+                    f"👆 Всего переходов: <b>{clicks}</b>"
                 ]
                 
-                """
                 if devices:
-                    devices_str = "\n".join([f"• {device}: {percent}" for device, percent in devices.items()])
-                    report.append(f"\n📱 Устройства:\n{devices_str}")
-                
+                    report.append("\nУстройства:\n");
+                    desktop = devices.get("desktop", "0%")
+                    mobile = devices.get("mobile", "0%")
+                    report.append(f"\tКомпьютеры: {desktop}")
+                    report.append(f"\tСмартфоны: {mobile}")
+                """
                 if countries:
                     countries_str = "\n".join([f"• {country}: {count}" for country, count in countries.items()])
                     report.append(f"\n🌍 Страны:\n{countries_str}")
                 """
-
                 await message.answer(
                     "\n".join(report),
                     parse_mode="HTML"
