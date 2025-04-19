@@ -57,7 +57,7 @@ async def cmd_add(message: types.Message):
                 
                 result = await response.json()
                 if result.get("status") != "OK":
-                    await message.answer(f"❌ Ошибка API: такая ссылка уже существует!')")
+                    await message.answer(f"❌ Ошибка API: такая ссылка уже существует!")
                     return
                 
                 short_url = f"https://шайтанкод.рф/{result['short_id']}"
