@@ -110,7 +110,7 @@ async def cmd_stat(message: types.Message):
                     report.append(f"\tСмартфоны: {mobile}")
                 
                 if countries:
-                    report.append("\t🌍Страны:")
+                    report.append("\n🌍Страны:")
                     for country in countries:
                         report.append(f"\t{country}")
                 
