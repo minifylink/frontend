@@ -47,7 +47,7 @@ async def cmd_add(message: types.Message):
             }
             
             async with session.post(
-                'https://82.202.140.205/api/v1/shorten',
+                'https://шайтанкод.рф/api/v1/shorten',
                 json=shorten_data,
                 ssl=False
             ) as response:
@@ -60,7 +60,7 @@ async def cmd_add(message: types.Message):
                     await message.answer(f"❌ Ошибка API: {result.get('message', 'Unknown error')}")
                     return
                 
-                short_url = f"https://82.202.140.205/{result['short_id']}"
+                short_url = f"https://шайтанкод.рф/{result['short_id']}"
             
             qr_code_url = f"https://api.qrserver.com/v1/create-qr-code/?size=200x200&data={short_url}"
             
