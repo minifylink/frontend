@@ -103,16 +103,17 @@ async def cmd_stat(message: types.Message):
                 ]
                 
                 if devices:
-                    report.append("\nУстройства:\n");
+                    report.append("\n🖥Устройства:");
                     desktop = devices.get("desktop", "0%")
                     mobile = devices.get("mobile", "0%")
                     report.append(f"\tКомпьютеры: {desktop}")
                     report.append(f"\tСмартфоны: {mobile}")
-                """
+                
                 if countries:
-                    countries_str = "\n".join([f"• {country}: {count}" for country, count in countries.items()])
-                    report.append(f"\n🌍 Страны:\n{countries_str}")
-                """
+                    report.append("\t🌍Страны:")
+                    for country in countries:
+                        report.append(f"\t{country}")
+                
                 await message.answer(
                     "\n".join(report),
                     parse_mode="HTML"
