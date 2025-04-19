@@ -89,7 +89,7 @@ async def cmd_stat(message: types.Message):
                 ssl=False
             ) as response:
                 if response.status != 200:
-                    await message.answer("❌ Ошибка при запросе статистики")
+                    await message.answer("❌ Ошибка API: что-то не так на стороне сервера :(")
                     return
                 
                 stats = await response.json()
@@ -99,9 +99,12 @@ async def cmd_stat(message: types.Message):
 
                 report = [
                     f"📊 Статистика для <b>{short_id}</b>",
-                    f"👆 Всего переходов: <b>{clicks}</b>"
+                    f"👆 Всего переходов: <b>{clicks}</b>",
+                    f"{type(devices)}",
+                    f"{type(countries)}"
                 ]
                 
+                """
                 if devices:
                     devices_str = "\n".join([f"• {device}: {percent}" for device, percent in devices.items()])
                     report.append(f"\n📱 Устройства:\n{devices_str}")
@@ -109,6 +112,7 @@ async def cmd_stat(message: types.Message):
                 if countries:
                     countries_str = "\n".join([f"• {country}: {count}" for country, count in countries.items()])
                     report.append(f"\n🌍 Страны:\n{countries_str}")
+                """
 
                 await message.answer(
                     "\n".join(report),
